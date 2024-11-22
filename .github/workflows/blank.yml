@@ -5,12 +5,13 @@ on:
 
 jobs:
   terraform:
-    runs-on: [self-hosted]
+    runs-on: [self-hosted]  # Ensure you are using a self-hosted runner for your pipeline
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step to set up Node.js for Infracost, if it's not already installed
       - name: Set up Node.js (if required for Infracost)
         run: |
           if ! command -v node &> /dev/null; then
@@ -18,20 +19,29 @@ jobs:
             sudo yum install -y nodejs
           fi
 
+      # Step to initialize Terraform
       - name: Terraform Init
         run: terraform init
 
+      # Step to validate the Terraform configuration
       - name: Terraform Validate
         run: terraform validate
 
+      # Step to run Terraform Plan and output to a plan file
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
+      # Step to configure Infracost API Key using the GitHub secret
+      - name: Configure Infracost API Key
+        run: infracost configure set api_key ${{ secrets.INFRACOST_API_KEY }}
+
+      # Step to run Infracost for cost estimation using the generated Terraform plan
       - name: Run Infracost for Cost Estimation
         run: |
           # Assuming terraform plan file is created with -out=tfplan
           infracost breakdown --path=tfplan --format=json > infracost_output.json
 
+      # Step to upload Infracost Report as an artifact
       - name: Upload Infracost Report
         uses: actions/upload-artifact@v3
         with:
