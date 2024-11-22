@@ -8,29 +8,44 @@ jobs:
     runs-on: [self-hosted]
 
     steps:
+      # Step 1: Checkout the code from the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
+      # Step 2: Install Terraform
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      # Step 3: Install Infracost
+      - name: Install Infracost
+        run: |
+          curl -sL https://github.com/infracost/infracost/releases/latest/download/infracost-linux-amd64.tar.gz -o infracost.tar.gz
+          tar -xzvf infracost.tar.gz -C /usr/local/bin
+          
+      # Step 4: Terraform Init
       - name: Terraform Init
         run: terraform init
 
+      # Step 5: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
+      # Step 6: Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
-      - name: Install Infracost
+      # Step 7: Run Infracost to get cost estimation
+      - name: Infracost Estimate
         run: |
-          curl -sSL https://github.com/infracost/infracost/releases/download/v0.10.17/infracost-linux-amd64-v0.10.17.tar.gz | tar xz -C /usr/local/bin
-
-      - name: Run Infracost
-        run: |
-          infracost breakdown --path tfplan --format json > infracost_output.json
-          cat infracost_output.json
-
+          infracost breakdown --path=tfplan --format=json > infracost-output.json
+          
+      # Step 8: Upload Infracost output as an artifact (Optional)
       - name: Upload Infracost Output
         uses: actions/upload-artifact@v3
         with:
           name: infracost-output
-          path: infracost_output.json
+          path: infracost-output.json
+          
+      # Step 9: Display Infracost results in the logs
+      - name: Display Infracost output
+        run: cat infracost-output.json
