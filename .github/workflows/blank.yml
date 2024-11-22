@@ -12,11 +12,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Install Terraform
+      # Step 2: Install Node.js
+      - name: Install Node.js
+        run: |
+          curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          node -v  # Verify node installation
+
+      # Step 3: Install Terraform
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
 
-      # Step 3: Install Infracost
+      # Step 4: Install Infracost
       - name: Install Infracost
         run: |
           curl -sL https://github.com/infracost/infracost/releases/latest/download/infracost-linux-amd64.tar.gz -o infracost.tar.gz
@@ -26,30 +33,32 @@ jobs:
           sudo mv /tmp/infracost-linux-amd64 /usr/local/bin/infracost
           sudo chmod +x /usr/local/bin/infracost
           
-      # Step 4: Terraform Init
+      # Step 5: Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # Step 5: Terraform Validate
+      # Step 6: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # Step 6: Terraform Plan
+      # Step 7: Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
-      # Step 7: Run Infracost to get cost estimation
+      # Step 8: Run Infracost to get cost estimation
       - name: Infracost Estimate
         run: |
           infracost breakdown --path=tfplan --format=json > infracost-output.json
           
-      # Step 8: Upload Infracost output as an artifact (Optional)
+      # Step 9: Upload Infracost output as an artifact (Optional)
       - name: Upload Infracost Output
         uses: actions/upload-artifact@v3
         with:
           name: infracost-output
           path: infracost-output.json
           
-      # Step 9: Display Infracost results in the logs
+      # Step 10: Display Infracost results in the logs
       - name: Display Infracost output
         run: cat infracost-output.json
+
+        
