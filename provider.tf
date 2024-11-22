@@ -2,13 +2,11 @@ terraform {
   required_providers {
     aws = {
       source = "hashicorp/aws"
-      version = "~>5.31.0" # AWS provider version, not terraform version
+      version = "5.77.0"
     }
   }
 }
 
 provider "aws" {
-  region = "us-east-1"
+  # Configuration options
 }
-
-#It's mandatory to create provider.tf file so that terraform will understand that it gonna work with AWS.
