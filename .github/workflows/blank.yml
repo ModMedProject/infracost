@@ -18,4 +18,19 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
+
+      - name: Install Infracost
+        run: |
+          curl -sSL https://github.com/infracost/infracost/releases/download/v0.10.17/infracost-linux-amd64-v0.10.17.tar.gz | tar xz -C /usr/local/bin
+
+      - name: Run Infracost
+        run: |
+          infracost breakdown --path tfplan --format json > infracost_output.json
+          cat infracost_output.json
+
+      - name: Upload Infracost Output
+        uses: actions/upload-artifact@v3
+        with:
+          name: infracost-output
+          path: infracost_output.json
