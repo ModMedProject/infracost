@@ -16,7 +16,7 @@ jobs:
       - name: Install Node.js (Red Hat)
         run: |
           sudo yum clean all
-          sudo yum install -y gnupg
+          sudo yum install -y gnupg2
           curl -sL https://rpm.nodesource.com/gpgkey/NODESOURCE-GPG-SIGNING-KEY-EL | sudo tee /etc/pki/rpm-gpg/NODESOURCE-GPG-SIGNING-KEY-EL
           curl -sL https://rpm.nodesource.com/setup_16.x | sudo bash -
           sudo yum install -y nodejs
@@ -42,8 +42,4 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
-      # Step 7: Run Infracost for cost estimation
-      - name: Run Infracost
-        run: |
-          infracost breakdown --path=./ --format=json > infracost_output.json
-          cat infracost_output.json
+      # Step 7: Run Infracost for co
