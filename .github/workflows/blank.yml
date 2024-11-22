@@ -12,12 +12,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Install Node.js
-      - name: Install Node.js
+      # Step 2: Install Node.js for Red Hat (using NodeSource)
+      - name: Install Node.js (Red Hat)
         run: |
-          curl -sL https://deb.nodesource.com/setup_16.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          node -v  # Verify node installation
+          curl -sL https://rpm.nodesource.com/setup_16.x | sudo bash -
+          sudo yum install -y nodejs
+          node -v  # Verify Node.js installation
 
       # Step 3: Install Terraform
       - name: Install Terraform
@@ -60,5 +60,3 @@ jobs:
       # Step 10: Display Infracost results in the logs
       - name: Display Infracost output
         run: cat infracost-output.json
-
-        
