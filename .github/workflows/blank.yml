@@ -12,13 +12,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Install Node.js (Red Hat-based systems)
+      # Step 2: Install Node.js from default repos
       - name: Install Node.js (Red Hat)
         run: |
           sudo yum clean all
-          sudo yum install -y gnupg2
-          curl -sL https://rpm.nodesource.com/gpgkey/NODESOURCE-GPG-SIGNING-KEY-EL | sudo tee /etc/pki/rpm-gpg/NODESOURCE-GPG-SIGNING-KEY-EL
-          curl -sL https://rpm.nodesource.com/setup_16.x | sudo bash -
           sudo yum install -y nodejs
           node -v  # Verify Node.js installation
 
@@ -42,4 +39,8 @@ jobs:
       - name: Terraform Plan
         run: terraform plan
 
-      # Step 7: Run Infracost for co
+      # Step 7: Run Infracost for cost estimation
+      - name: Run Infracost
+        run: |
+          infracost breakdown --path=./ --format=json > infracost_output.json
+          cat infracost_output.json
