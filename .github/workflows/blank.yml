@@ -8,39 +8,32 @@ jobs:
     runs-on: [self-hosted]
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Step 2: Install Node.js from default repos
-      - name: Install Node.js (Red Hat)
+      - name: Set up Node.js (if required for Infracost)
         run: |
-          sudo yum clean all
-          sudo yum install -y nodejs
-          node -v  # Verify Node.js installation
+          if ! command -v node &> /dev/null; then
+            curl -sL https://rpm.nodesource.com/setup_16.x | sudo bash -
+            sudo yum install -y nodejs
+          fi
 
-      # Step 3: Install Infracost
-      - name: Install Infracost
-        run: |
-          curl -sL https://github.com/infracost/infracost/releases/latest/download/infracost-linux-amd64.tar.gz -o infracost.tar.gz
-          tar -xvzf infracost.tar.gz
-          sudo mv infracost-linux-amd64 /usr/local/bin/infracost
-          infracost --version  # Verify Infracost installation
-
-      # Step 4: Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # Step 5: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # Step 6: Terraform Plan
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
 
-      # Step 7: Run Infracost for cost estimation
-      - name: Run Infracost
+      - name: Run Infracost for Cost Estimation
         run: |
-          infracost breakdown --path=./ --format=json > infracost_output.json
-          cat infracost_output.json
+          # Assuming terraform plan file is created with -out=tfplan
+          infracost breakdown --path=tfplan --format=json > infracost_output.json
+
+      - name: Upload Infracost Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: infracost-report
+          path: infracost_output.json
